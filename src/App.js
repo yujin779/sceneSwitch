@@ -1,10 +1,11 @@
 // App.js
 import React, { useRef, useState } from "react";
 import * as THREE from "three";
-import { View } from "react-native";
+import { View, Text } from "react-native";
 import { Canvas, useFrame, useThree, extend } from "react-three-fiber";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import styles from "./styles";
+import { createGlobalState } from "react-hooks-global-state";
 // https://kronbits.itch.io/textures8bit
 // 素材はこちらのものを使用しました。
 // 他で使用する際は購入してください。
@@ -18,6 +19,11 @@ import texture5 from "./assets/img/texture_new_bluerocks.png";
 import texture6 from "./assets/img/texture_rocks_moss_px.png";
 
 extend({ OrbitControls });
+
+const initialState = {
+  scene: 0
+};
+export const { useGlobalState } = createGlobalState(initialState);
 
 // ボックスのテクスチャ
 const loader = new THREE.TextureLoader();
@@ -126,6 +132,47 @@ const Box = (props) => {
     </mesh>
   );
 };
+
+const Page1 = () => {
+  const [scene, setScene] = useGlobalState("scene");
+  if (scene === 0) {
+    return (
+      // <View>
+      <group>
+        <Box2 position={[1, 1, 0]} />
+
+        <mesh
+          // クリックするたびにテクスチャを変更
+          onClick={(e) => {
+            setScene(1);
+          }}
+        >
+          <boxBufferGeometry args={[1, 1, 1]} />
+        </mesh>
+      </group>
+    );
+  } else {
+    return null;
+  }
+};
+
+const Page2 = () => {
+  const [scene] = useGlobalState("scene");
+  if (scene === 1) {
+    return (
+      // <View>
+      <SkyBox />
+    );
+  } else {
+    return null;
+  }
+};
+
+// const PageChange = () => {
+//   const [scene, setScene] = useGlobalState("scene");
+//   return <Text>aa</Text>;
+// };
+
 /*
  * 1. 表示される入り口
  */
@@ -137,9 +184,10 @@ const App = () => {
         <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
         <pointLight position={[-10, -10, -10]} />
         <CameraController />
-        <SkyBox />
-        <Box position={[-1, 1, 0]} />
-        <Box2 position={[1, -1, 0]} />
+        <Page1 />
+        <Page2 />
+        {/* <PageChange /> */}
+        {/* <Box position={[-1, 1, 0]} /> */}
       </Canvas>
     </View>
   );
